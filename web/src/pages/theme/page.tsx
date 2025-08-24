@@ -9,8 +9,6 @@ import ThemeListItem from './components/theme.list-item';
 import ThemeOptionListInput from './components/theme-option.list-input';
 import Loading from '../convert/components/loading';
 import ThemeOptionResetButton from './components/theme-option-reset.button';
-import Preview from './components/preview';
-import RerenderButton from './components/rerender.button';
 
 const ThemeSettingsPage = () => {
   const { t } = useTranslation();
@@ -20,11 +18,6 @@ const ThemeSettingsPage = () => {
   return (
     <Page style={{ paddingBottom: '10rem' }}>
       <Navbar large transparent title={t('root.themes')} />
-
-      <Preview />
-      <div className="flex justify-center mt-4">
-        <RerenderButton />
-      </div>
 
       <BlockTitle>{t('root.themes.list')}</BlockTitle>
       <List strongIos inset>

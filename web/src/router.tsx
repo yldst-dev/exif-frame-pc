@@ -1,16 +1,14 @@
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import TermAndConditionsPage from './pages/term-and-conditions';
 import PrivacyPolicyPage from './pages/privacy-policy';
-import ExportSettingsPage from './pages/setting/page';
-import ThemeSettingsPage from './pages/theme/page';
-import { useStore } from './store';
-import FramePage from './pages/convert/page';
 import SponsorsPage from './pages/sponsors';
 import LabPage from './pages/lab/page';
 import MetadataPage from './pages/metadata/page';
+import DesktopLayout from './components/desktop-layout';
+import MobileNotSupportedPage from './pages/mobile-not-supported';
 
 const Router = () => {
-  const { tabIndex } = useStore();
+  const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || window.innerWidth < 1024;
 
   return (
     <BrowserRouter>
@@ -18,11 +16,11 @@ const Router = () => {
         <Route
           path="/"
           element={
-            <>
-              {tabIndex === 0 && <FramePage />}
-              {tabIndex === 1 && <ThemeSettingsPage />}
-              {tabIndex === 2 && <ExportSettingsPage />}
-            </>
+            isMobile ? (
+              <MobileNotSupportedPage />
+            ) : (
+              <DesktopLayout />
+            )
           }
         />
         <Route path="/privacy_policy.html" element={<PrivacyPolicyPage />} />

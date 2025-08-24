@@ -21,13 +21,13 @@ const render = async (func: ThemeFunc, photo: Photo, option: ThemeOptionInput, s
     context.shadowBlur = 0;
   }
 
-  if (store.fixImageWidth && store.imageWidth) {
+  if (store.enableFixImageWidth && store.fixImageWidth) {
     if (canvas.width > canvas.height) {
-      const targetWidth = store.imageWidth > 4096 ? 4096 : store.imageWidth;
+      const targetWidth = store.fixImageWidth > 4096 ? 4096 : store.fixImageWidth;
       const targetHeight = (targetWidth * canvas.height) / canvas.width;
       canvas = resize(canvas, targetWidth, targetHeight);
     } else {
-      const targetHeight = store.imageWidth > 4096 ? 4096 : store.imageWidth; // This is a naming bug
+      const targetHeight = store.fixImageWidth > 4096 ? 4096 : store.fixImageWidth;
       const targetWidth = (targetHeight * canvas.width) / canvas.height;
       canvas = resize(canvas, targetWidth, targetHeight);
     }

@@ -45,11 +45,11 @@ type Store = {
   dateNotation: string;
   setDateNotation: (dateNotation: string) => void;
 
-  fixImageWidth: boolean;
-  setFixImageWidth: (fixImageWidth: boolean) => void;
+  fixImageWidth: number;
+  setFixImageWidth: (fixImageWidth: number) => void;
 
-  imageWidth: number;
-  setImageWidth: (imageWidth: number) => void;
+  enableFixImageWidth: boolean;
+  setEnableFixImageWidth: (enableFixImageWidth: boolean) => void;
 
   showCameraMaker: boolean;
   setShowCameraMaker: (showCameraMaker: boolean) => void;
@@ -74,6 +74,9 @@ type Store = {
 
   photos: Photo[];
   setPhotos: (photos: Photo[]) => void;
+  addPhoto: (photo: Photo) => void;
+  removePhoto: (index: number) => void;
+  clearAllPhotos: () => void;
 
   loading: boolean;
   setLoading: (loading: boolean) => void;
@@ -175,7 +178,7 @@ const useStore = create<Store>((set) => ({
   languagePopover: false,
   setLanguagePopover: (opened: boolean) => set({ languagePopover: opened }),
 
-  quality: parseInt(localStorage.getItem('quality') || '95'),
+  quality: parseFloat(localStorage.getItem('quality') || '0.95'),
   setQuality: (quality: number) =>
     set(() => {
       localStorage.setItem('quality', quality.toString());
@@ -192,19 +195,19 @@ const useStore = create<Store>((set) => ({
       return { dateNotation };
     }),
 
-  fixImageWidth: localStorage.getItem('fixImageWidth') === 'true',
-  setFixImageWidth: (fixImageWidth: boolean) =>
+  fixImageWidth: parseInt(localStorage.getItem('fixImageWidth') || '1920'),
+  setFixImageWidth: (fixImageWidth: number) =>
     set(() => {
+      if (fixImageWidth > 4096) fixImageWidth = 4096;
       localStorage.setItem('fixImageWidth', fixImageWidth.toString());
-      return { fixImageWidth };
+      return { fixImageWidth: fixImageWidth || 1920 };
     }),
 
-  imageWidth: parseInt(localStorage.getItem('imageWidth') || '1920'),
-  setImageWidth: (imageWidth: number) =>
+  enableFixImageWidth: localStorage.getItem('enableFixImageWidth') === 'true',
+  setEnableFixImageWidth: (enableFixImageWidth: boolean) =>
     set(() => {
-      if (imageWidth > 4096) imageWidth = 4096;
-      localStorage.setItem('imageWidth', imageWidth.toString() || '1920');
-      return { imageWidth: imageWidth || 1920 };
+      localStorage.setItem('enableFixImageWidth', enableFixImageWidth.toString());
+      return { enableFixImageWidth };
     }),
 
   showCameraMaker: localStorage.getItem('showCameraMaker') !== 'false',
@@ -258,6 +261,11 @@ const useStore = create<Store>((set) => ({
 
   photos: [],
   setPhotos: (photos: Photo[]) => set({ photos }),
+  addPhoto: (photo: Photo) => set((state) => ({ photos: [...state.photos, photo] })),
+  removePhoto: (index: number) => set((state) => ({ 
+    photos: state.photos.filter((_, i) => i !== index) 
+  })),
+  clearAllPhotos: () => set({ photos: [] }),
 
   loading: false,
   setLoading: (loading: boolean) => set({ loading }),

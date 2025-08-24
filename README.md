@@ -1,26 +1,90 @@
-<p align="center">
-  <img src="https://github.com/yurucam/exif-frame/assets/25793226/b9de5dc3-344a-4a3f-8cfb-ed4c82404cea" alt="album and camera" width=200px />
-</p>
-
-<h1 align="center"><a href="https://exif-frame.yuru.cam">EXIF Frame</a></h1>
+# EXIF Frame Web App
 
 <p align="center">
   📸 → 🖼️ with EXIF metadata
 </p>
 
-<p align="center">
-  <a href="https://play.google.com/store/apps/details?id=com.yurucam.exif"><img src="https://github.com/yurucam/exif-frame/assets/25793226/9be351a3-6c57-4033-a9e4-d95595a26dcd" width="200px" /></a>
-  <a href="https://apps.apple.com/kr/app/exif-%ED%94%84%EB%A0%88%EC%9E%84/id6494989030"><img src="https://github.com/yurucam/exif-frame/assets/25793226/54f6d50f-e5f7-4b46-8bb0-5a646fce0dca" width="200px" /></a>
-<p/>
+A modern web application that adds beautiful frames with EXIF metadata to your photos. This is a redesigned version of the original [EXIF Frame](https://exif-frame.yuru.cam) with enhanced user experience and desktop-focused interface.
 
-<p align="center">
-  <img src="https://github.com/yurucam/exif-frame/assets/25793226/9c992235-709b-46a6-9986-64f9bf7af288" width="400px" />
-  <img src="https://github.com/yurucam/exif-frame/assets/25793226/415f3838-38f0-43c8-a5b2-55afa32b6659" width="400px" />
-  <img src="https://github.com/yurucam/exif-frame/assets/25793226/55a28890-65bf-482a-a14c-8b9561532717" width="400px" />
-  <img src="https://github.com/yurucam/exif-frame/assets/25793226/b8b60b55-665b-42b2-b9c6-d39109fd0777" width="400px" />
-<p/>
+## ✨ Features
 
-[EXIF Frame](https://exif-frame.yuru.cam) is a web application that displays exif metadata in the frame by adding a white border frame to the image. Users can process the uploaded image and download the result. You can also manually edit the automatically acquired and displayed exif metadata later.
+- **16 Beautiful Themes**: Choose from various frame styles including minimalist, vintage, and custom designs
+- **Intuitive Interface**: Modern desktop-optimized UI with sidebar navigation
+- **Batch Processing**: Download multiple photos as a ZIP file
+- **Theme Customization**: Customize colors, fonts, and layout options
+- **EXIF Data Management**: Automatic extraction and display of camera metadata
+- **Multiple Languages**: Support for Korean, English, Japanese, and Chinese
+- **Dark Mode**: Built-in dark theme support
+
+## 🖥️ Desktop Only
+
+This application is optimized for desktop use only. Mobile users will be redirected to the [original EXIF Frame](https://exif-frame.yuru.cam) for the best mobile experience.
+
+## 🚀 Getting Started
+
+### Prerequisites
+
+- Node.js 18+
+- npm or yarn
+
+### Installation
+
+1. Clone the repository
+```bash
+git clone https://github.com/yldst-dev/exif-frame-app.git
+cd exif-frame-app
+```
+
+2. Install dependencies
+```bash
+cd web
+npm install
+```
+
+3. Start the development server
+```bash
+npm run dev
+```
+
+4. Open your browser and visit `http://localhost:3000`
+
+### Building for Production
+
+```bash
+npm run build
+```
+
+## 🛠️ Tech Stack
+
+- **React 18** with TypeScript
+- **Tailwind CSS** for styling
+- **Zustand** for state management
+- **React Router** for navigation
+- **Vite** for build tooling
+- **ExifReader** for metadata extraction
+
+## 📁 Project Structure
+
+```
+web/
+├── public/          # Static assets
+├── src/
+│   ├── components/  # React components
+│   ├── pages/      # Page components
+│   ├── themes/     # Frame themes
+│   ├── core/       # Core functionality
+│   ├── icons/      # Icon components
+│   └── locales/    # Internationalization
+└── ...
+```
+
+## 🔄 TODO
+
+- [ ] **Electron App**: Build desktop application using Electron for better native experience
+- [ ] **Performance Optimization**: Implement image processing optimization for large files
+- [ ] **Cloud Storage**: Add support for cloud storage integration (Google Drive, Dropbox)
+- [ ] **Template Sharing**: Allow users to share custom theme templates
+- [ ] **Batch Editing**: Advanced batch processing with different settings per photo
 
 ## Contributors
 

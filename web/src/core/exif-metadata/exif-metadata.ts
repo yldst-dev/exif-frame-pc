@@ -13,10 +13,47 @@ class ExifMetadata {
   public takenAt: string | undefined;
 
   constructor(metadata: Tags) {
-    console.log(metadata);
+    console.log('=== EXIF 메타데이터 전체 ===', metadata);
     this.make = metadata?.Make?.description;
     this.model = metadata?.Model?.description;
-    this.lensModel = this.model ? metadata?.LensModel?.description?.replace(this.model, '')?.trim() : metadata?.LensModel?.description;
+    
+    // 렌즈 관련 태그들 디버깅
+    console.log('=== 렌즈 관련 태그들 ===');
+    console.log('LensModel:', metadata?.LensModel);
+    console.log('LensSpec:', metadata?.LensSpec);
+    console.log('Lens:', metadata?.Lens);
+    console.log('LensInfo:', metadata?.LensInfo);
+    
+    // 모든 렌즈 관련 가능한 태그들 확인
+    console.log('=== 모든 렌즈 관련 가능한 태그들 ===');
+    const lensKeys = Object.keys(metadata).filter(key => 
+      key.toLowerCase().includes('lens')
+    );
+    console.log('렌즈 관련 키들:', lensKeys);
+    lensKeys.forEach(key => {
+      console.log(`${key}:`, metadata[key]);
+    });
+    
+    // 여러 렌즈 관련 태그를 확인 (LensModel, LensSpec, LensSpecification, Lens 순서로)
+    let lensInfo = metadata?.LensModel?.description || 
+                   metadata?.LensSpec?.description || 
+                   metadata?.LensSpecification?.description ||
+                   metadata?.Lens?.description ||
+                   metadata?.LensInfo?.description;
+    
+    // Sony RX100M3의 경우 LensSpecification을 35mm 등가로 변환
+    if (lensInfo === "8.8-25.7 mm f/2.8" || lensInfo === "8.8-25.7 mm f/1.8-2.8") {
+      lensInfo = "24-70mm F1.8-2.8";
+    }
+    
+    console.log('=== 렌즈 정보 처리 결과 ===');
+    console.log('원본 lensInfo:', metadata?.LensSpecification?.description);
+    console.log('변환된 lensInfo:', lensInfo);
+    console.log('model:', this.model);
+    
+    this.lensModel = this.model ? lensInfo?.replace(this.model, '')?.trim() : lensInfo;
+    
+    console.log('최종 lensModel:', this.lensModel);
     this.focalLength = metadata?.FocalLength?.description?.replace(' mm', 'mm');
     this.focalLengthIn35mm = metadata?.FocalLengthIn35mmFilm?.value
       ? `${metadata?.FocalLengthIn35mmFilm?.value}mm`

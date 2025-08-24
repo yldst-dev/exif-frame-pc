@@ -66,8 +66,20 @@ class Photo {
    * @example 'FE 24-105mm F4 G OSS'
    */
   public get lensModel(): string {
-    if (localStorage.getItem('showLensModel') === 'false') return '';
-    return overrideExifMetadata()?.lensModel || this.metadata.lensModel || '';
+    const showLensModel = localStorage.getItem('showLensModel');
+    console.log('=== Photo.lensModel getter ===');
+    console.log('showLensModel 설정:', showLensModel);
+    console.log('this.metadata.lensModel:', this.metadata.lensModel);
+    console.log('overrideExifMetadata():', overrideExifMetadata());
+    
+    if (showLensModel === 'false') {
+      console.log('렌즈 모델 표시가 비활성화됨');
+      return '';
+    }
+    
+    const result = overrideExifMetadata()?.lensModel || this.metadata.lensModel || '';
+    console.log('최종 렌즈 모델 결과:', result);
+    return result;
   }
 
   /**
