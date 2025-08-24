@@ -82,9 +82,6 @@ web/
 
 - [ ] **Electron App**: Build desktop application using Electron for better native experience
 - [ ] **Performance Optimization**: Implement image processing optimization for large files
-- [ ] **Cloud Storage**: Add support for cloud storage integration (Google Drive, Dropbox)
-- [ ] **Template Sharing**: Allow users to share custom theme templates
-- [ ] **Batch Editing**: Advanced batch processing with different settings per photo
 
 ## Contributors
 
