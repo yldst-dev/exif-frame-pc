@@ -115,7 +115,7 @@ const TopToolbar: React.FC<TopToolbarProps> = () => {
             {/* Left Section - GitHub Link */}
             <div className="flex items-center space-x-3">
                 <a
-                    href="https://github.com/yldst-dev/exif-frame-app"
+                    href="https://github.com/yldst-dev/exif-frame-pc"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="flex items-center space-x-2 px-3 py-1.5 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
