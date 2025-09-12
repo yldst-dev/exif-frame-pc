@@ -1,3 +1,9 @@
+# Preview Image
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/yldst-dev/exif-frame-pc/refs/heads/main/preview%20image.jpg" alt="Preview image" width="800">
+</p>
+
 # EXIF Frame Web App
 
 <p align="center">
