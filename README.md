@@ -88,6 +88,7 @@ web/
 
 - [ ] **Electron App**: Build desktop application using Electron for better native experience
 - [ ] **Performance Optimization**: Implement image processing optimization for large files
+- [ ] **Mobile Support**: Add responsive mobile interface and remove desktop-only restriction
 
 ## Contributors
 
