@@ -31,8 +31,8 @@ This application is optimized for desktop use only. Mobile users will be redirec
 
 1. Clone the repository
 ```bash
-git clone https://github.com/yldst-dev/exif-frame-app.git
-cd exif-frame-app
+git clone https://github.com/yldst-dev/exif-frame-pc.git
+cd exif-frame-pc
 ```
 
 2. Install dependencies
