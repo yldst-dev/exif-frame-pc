@@ -129,7 +129,7 @@ const TopToolbar: React.FC<TopToolbarProps> = () => {
             {/* Center Section - App Title - Absolutely positioned center */}
             <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2">
                 <h1 className="text-lg font-semibold text-gray-900 dark:text-white whitespace-nowrap">
-                    EXIF Frame
+                    EXIF Frame-PC
                 </h1>
             </div>
 
