@@ -13,6 +13,7 @@ const Loading = () => {
       <div className="flex flex-col items-center">
         <Preloader className="k-color-brand-white" />
         <span className="ml-2 text-white text-sm">{t('root.processing')}</span>
+        <span className="ml-2 text-white text-xs opacity-75 mt-1">{t('root.heif-processing', 'HEIC/HEIF 파일은 변환 시간이 더 걸릴 수 있습니다')}</span>
       </div>
     </div>
   );

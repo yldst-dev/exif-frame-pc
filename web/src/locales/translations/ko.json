@@ -50,6 +50,7 @@
   "root.sponsor-description": "2024년 5월부터 2024년 11월까지 일시적으로 진행했던 후원 기능을 통해 후원해주신 감사한 분들을 소개합니다. 후원해주신 금액은 Apple 개발자 계정 연장, 개발에 도움이 되는 커피 구매 등으로 사용되었습니다. 후원해주셔서 진심을 담아 감사 인사드립니다.",
   "root.sponsors": "후원자 목록",
   "root.processing": "기기 사양에 따라 시간이 오래 걸릴 수 있습니다.",
+  "root.heif-processing": "HEIC/HEIF 파일은 변환 시간이 더 걸릴 수 있습니다",
   "root.releases": "배포 내역",
   "root.override-metadata": "메타데이터 강제 변경",
   "root.preview": "미리보기",
@@ -97,7 +98,7 @@
   "dropzone.drop-here": "여기에 사진을 놓으세요",
   "dropzone.drop-description": "놓으면 사진이 업로드됩니다",
   "dropzone.browse": "파일 선택",
-  "dropzone.formats": "지원 형식: JPG, PNG, HEIC 등",
+  "dropzone.formats": "지원 형식: JPG, PNG, HEIC, HEIF 등",
 
   "workspace.empty.title": "작업 공간",
   "workspace.photos.count": "사진 {{count}}장",

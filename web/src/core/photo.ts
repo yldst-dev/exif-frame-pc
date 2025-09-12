@@ -1,4 +1,5 @@
 import { load } from 'exifreader';
+import heic2any from 'heic2any';
 import ExifMetadata from './exif-metadata/exif-metadata';
 import thumbnail from './drawing/thumbnail';
 import overrideExifMetadata from './exif-metadata/override-exif-metadata';
@@ -27,17 +28,51 @@ class Photo {
    */
   public static async create(file: File): Promise<Photo> {
     const photo = new Photo();
-    photo.file = file;
-    photo.metadata = new ExifMetadata(await load(file));
+    
+    // Check if file is HEIC/HEIF and convert if necessary
+    const isHeif = file.type === 'image/heic' || file.type === 'image/heif' || 
+                   file.name.toLowerCase().endsWith('.heic') || 
+                   file.name.toLowerCase().endsWith('.heif');
+    
+    let processedFile = file;
+    
+    if (isHeif) {
+      try {
+        // Convert HEIC/HEIF to JPEG for browser compatibility
+        const convertedBlob = await heic2any({
+          blob: file,
+          toType: 'image/jpeg',
+          quality: 0.95
+        }) as Blob;
+        
+        // Create a new File object from the converted blob
+        // Keep original filename but change extension to .jpg
+        const originalName = file.name.replace(/\.(heic|heif)$/i, '');
+        processedFile = new File([convertedBlob], `${originalName}.jpg`, {
+          type: 'image/jpeg',
+          lastModified: file.lastModified,
+        });
+      } catch (error) {
+        console.error('Failed to convert HEIC/HEIF file:', error);
+        throw new Error(`Failed to process HEIC/HEIF file: ${file.name}. ${error instanceof Error ? error.message : 'Unknown error'}`);
+      }
+    }
+    
+    // Store both original and processed files
+    photo.file = processedFile; // Use converted file for processing
+    photo.metadata = new ExifMetadata(await load(file)); // Use original file for EXIF data
     photo.image = new Image();
-    photo.image.src = URL.createObjectURL(file);
-    await new Promise((resolve) => (photo.image.onload = resolve));
+    photo.image.src = URL.createObjectURL(processedFile);
+    await new Promise((resolve, reject) => {
+      photo.image.onload = resolve;
+      photo.image.onerror = () => reject(new Error(`Failed to load image: ${processedFile.name}`));
+    });
 
     photo.imageBase64 = await new Promise((resolve, reject) => {
       const reader = new FileReader();
-      reader.readAsDataURL(file);
+      reader.readAsDataURL(processedFile);
       reader.onload = () => resolve(reader.result as string);
-      reader.onerror = reject;
+      reader.onerror = () => reject(new Error(`Failed to read file as data URL: ${processedFile.name}`));
     });
 
     photo.thumbnail = thumbnail(photo, 300, 250);

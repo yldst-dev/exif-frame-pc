@@ -47,9 +47,14 @@ const DesktopLayout = () => {
     e.preventDefault();
     setIsDragOver(false);
     
-    const files = Array.from(e.dataTransfer.files).filter(file => 
-      file.type.startsWith('image/')
-    );
+    const files = Array.from(e.dataTransfer.files).filter(file => {
+      // Check for standard image types
+      if (file.type.startsWith('image/')) return true;
+      
+      // Check for HEIC/HEIF files by extension (since browsers may not recognize the MIME type)
+      const fileName = file.name.toLowerCase();
+      return fileName.endsWith('.heic') || fileName.endsWith('.heif');
+    });
     
     if (files.length > 0) {
       handleAddPhotos(files);
