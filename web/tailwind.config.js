@@ -4,9 +4,12 @@ export default konstaConfig({
   content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
   darkMode: 'class',
   theme: {
-    fontFamily: {
-      ios: 'Barlow, -apple-system, SF Pro Text, SF UI Text, system-ui, Helvetica Neue, Helvetica, Arial, sans-serif',
-      material: 'Barlow, Roboto, system-ui, Noto, Helvetica, Arial, sans-serif',
+    extend: {
+      fontFamily: {
+        sans: ['Pretendard Variable', '-apple-system', 'BlinkMacSystemFont', 'system-ui', 'sans-serif'],
+        ios: ['Pretendard Variable', '-apple-system', 'SF Pro Text', 'SF UI Text', 'system-ui', 'Helvetica Neue', 'Helvetica', 'Arial', 'sans-serif'],
+        material: ['Pretendard Variable', 'Roboto', 'system-ui', 'Noto', 'Helvetica', 'Arial', 'sans-serif'],
+      },
     },
   },
   konsta: {

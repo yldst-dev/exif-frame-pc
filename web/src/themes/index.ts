@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { SafeStorage } from '../utils/safe-storage';
 import { NO_FRAME_THEME_FUNC, NO_FRAME_OPTIONS } from './01_NO_FRAME';
 import { ONE_LINE_FUNC, ONE_LINE_OPTIONS } from './03_ONE_LINE';
 import { TWO_LINE_FUNC, TWO_LINE_OPTIONS } from './04_TWO_LINE';
@@ -22,22 +23,77 @@ type ThemeStore = {
   option: Map<string, AcceptInputType>;
   setOption: (key: string, value: AcceptInputType) => void;
   clearOption: () => void;
+  removeOptions: (keys: string[]) => void;
+  replaceOptions: (removeKeys: string[], newOptions: Map<string, AcceptInputType>) => void;
 };
 
 const useThemeStore = create<ThemeStore>((set) => ({
-  option: localStorage.getItem('option') ? new Map(JSON.parse(localStorage.getItem('option') as string)) : new Map(),
+  option: (() => {
+    try {
+      const saved = SafeStorage.getItem('option', '');
+      return saved ? new Map(JSON.parse(saved)) : new Map();
+    } catch {
+      return new Map();
+    }
+  })(),
   setOption: (key, value) => {
     set((state) => {
-      state.option.set(key, value);
-      localStorage.setItem('option', JSON.stringify(Array.from(state.option.entries())));
-      return state;
+      const newOption = new Map(state.option);
+      newOption.set(key, value);
+      try {
+        SafeStorage.setItem('option', JSON.stringify(Array.from(newOption.entries())));
+      } catch (error) {
+        console.error('Failed to save theme option:', error);
+      }
+      return { ...state, option: newOption };
     });
   },
   clearOption: () => {
     set((state) => {
-      state.option.clear();
-      localStorage.removeItem('option');
-      return state;
+      const newOption = new Map();
+      try {
+        SafeStorage.removeItem('option');
+      } catch (error) {
+        console.error('Failed to clear theme options:', error);
+      }
+      return { ...state, option: newOption };
+    });
+  },
+  removeOptions: (keys) => {
+    set((state) => {
+      const newOption = new Map(state.option);
+      keys.forEach(key => newOption.delete(key));
+      try {
+        SafeStorage.setItem('option', JSON.stringify(Array.from(newOption.entries())));
+      } catch (error) {
+        console.error('Failed to remove theme options:', error);
+      }
+      return { ...state, option: newOption };
+    });
+  },
+  replaceOptions: (removeKeys, newOptions) => {
+    set((state) => {
+      // 원자적 업데이트로 깜빡임 최소화
+      const newOption = new Map();
+      
+      // 기존 옵션 중 제거하지 않을 것들 유지
+      state.option.forEach((value, key) => {
+        if (!removeKeys.includes(key)) {
+          newOption.set(key, value);
+        }
+      });
+      
+      // 새 옵션들 추가
+      newOptions.forEach((value, key) => {
+        newOption.set(key, value);
+      });
+      
+      try {
+        SafeStorage.setItem('option', JSON.stringify(Array.from(newOption.entries())));
+      } catch (error) {
+        console.error('Failed to replace theme options:', error);
+      }
+      return { ...state, option: newOption };
     });
   },
 }));

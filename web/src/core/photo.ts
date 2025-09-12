@@ -2,6 +2,7 @@ import { load } from 'exifreader';
 import ExifMetadata from './exif-metadata/exif-metadata';
 import thumbnail from './drawing/thumbnail';
 import overrideExifMetadata from './exif-metadata/override-exif-metadata';
+import { SafeStorage } from '../utils/safe-storage';
 
 /**
  * Represents a photo.
@@ -48,7 +49,7 @@ class Photo {
    * @example 'SONY'
    */
   public get make(): string {
-    if (localStorage.getItem('showCameraMaker') === 'false') return '';
+    if (!SafeStorage.getBooleanItem('showCameraMaker', true)) return '';
     return overrideExifMetadata()?.make || this.metadata.make || '';
   }
 
@@ -57,7 +58,7 @@ class Photo {
    * @example 'ILCE-7M3'
    */
   public get model(): string {
-    if (localStorage.getItem('showCameraModel') === 'false') return '';
+    if (!SafeStorage.getBooleanItem('showCameraModel', true)) return '';
     return overrideExifMetadata()?.model || this.metadata.model || '';
   }
 
@@ -66,20 +67,11 @@ class Photo {
    * @example 'FE 24-105mm F4 G OSS'
    */
   public get lensModel(): string {
-    const showLensModel = localStorage.getItem('showLensModel');
-    console.log('=== Photo.lensModel getter ===');
-    console.log('showLensModel 설정:', showLensModel);
-    console.log('this.metadata.lensModel:', this.metadata.lensModel);
-    console.log('overrideExifMetadata():', overrideExifMetadata());
-    
-    if (showLensModel === 'false') {
-      console.log('렌즈 모델 표시가 비활성화됨');
+    if (!SafeStorage.getBooleanItem('showLensModel', true)) {
       return '';
     }
     
-    const result = overrideExifMetadata()?.lensModel || this.metadata.lensModel || '';
-    console.log('최종 렌즈 모델 결과:', result);
-    return result;
+    return overrideExifMetadata()?.lensModel || this.metadata.lensModel || '';
   }
 
   /**
@@ -87,11 +79,11 @@ class Photo {
    * @example '24mm'
    */
   public get focalLength(): string {
-    if (localStorage.getItem('focalLengthRatioMode') === 'true') {
+    if (SafeStorage.getBooleanItem('focalLengthRatioMode', false)) {
       const focalLength = parseFloat(overrideExifMetadata()?.focalLength?.replace(' mm', '') || this.metadata?.focalLength?.replace(' mm', '') || '0');
-      return (focalLength * parseFloat(localStorage.getItem('focalLengthRatio') || '1')).toFixed(0) + 'mm';
+      return (focalLength * SafeStorage.getNumberItem('focalLengthRatio', 1)).toFixed(0) + 'mm';
     }
-    return localStorage.getItem('focalLength35mmMode') === 'false'
+    return !SafeStorage.getBooleanItem('focalLength35mmMode', false)
       ? overrideExifMetadata()?.focalLength || this.metadata.focalLength || ''
       : overrideExifMetadata()?.focalLengthIn35mm || this.metadata.focalLengthIn35mm || '';
   }
@@ -128,7 +120,7 @@ class Photo {
     if (!overrideExifMetadata()?.takenAt && !this.metadata.takenAt) return '';
 
     const takenAt = new Date(overrideExifMetadata()?.takenAt || this.metadata.takenAt!);
-    switch (localStorage.getItem('dateNotation') || '2001/01/01 01:01:01') {
+    switch (SafeStorage.getItem('dateNotation', '2001/01/01 01:01:01') as string) {
       case '2001/01/01 01:01:01':
         return `${takenAt.getFullYear()}/${(takenAt.getMonth() + 1).toString().padStart(2, '0')}/${takenAt.getDate().toString().padStart(2, '0')} ${takenAt
           .getHours()

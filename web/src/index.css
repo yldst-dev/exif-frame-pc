@@ -2,110 +2,93 @@
 @tailwind components;
 @tailwind utilities;
 
-.barlow-thin {
-  font-family: "Barlow", sans-serif;
+/* Pretendard Font Import */
+@font-face {
+  font-family: 'Pretendard Variable';
+  font-weight: 45 920;
+  font-style: normal;
+  font-display: swap;
+  src: url('/fonts/pretendard/PretendardVariable.woff2') format('woff2-variations');
+}
+
+/* Set Pretendard as default font for the application */
+:root {
+  font-family: 'Pretendard Variable', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+}
+
+/* Smooth theme transitions */
+* {
+  transition: background-color 0.2s ease-out, border-color 0.2s ease-out, color 0.2s ease-out;
+}
+
+/* Image preview centering */
+.image-preview-container {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+
+.image-preview-container img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+/* Pretendard Font Weight Classes */
+.pretendard-thin {
+  font-family: 'Pretendard Variable', sans-serif;
   font-weight: 100;
   font-style: normal;
 }
 
-.barlow-extralight {
-  font-family: "Barlow", sans-serif;
+.pretendard-extralight {
+  font-family: 'Pretendard Variable', sans-serif;
   font-weight: 200;
   font-style: normal;
 }
 
-.barlow-light {
-  font-family: "Barlow", sans-serif;
+.pretendard-light {
+  font-family: 'Pretendard Variable', sans-serif;
   font-weight: 300;
   font-style: normal;
 }
 
-.barlow-regular {
-  font-family: "Barlow", sans-serif;
+.pretendard-regular {
+  font-family: 'Pretendard Variable', sans-serif;
   font-weight: 400;
   font-style: normal;
 }
 
-.barlow-medium {
-  font-family: "Barlow", sans-serif;
+.pretendard-medium {
+  font-family: 'Pretendard Variable', sans-serif;
   font-weight: 500;
   font-style: normal;
 }
 
-.barlow-semibold {
-  font-family: "Barlow", sans-serif;
+.pretendard-semibold {
+  font-family: 'Pretendard Variable', sans-serif;
   font-weight: 600;
   font-style: normal;
 }
 
-.barlow-bold {
-  font-family: "Barlow", sans-serif;
+.pretendard-bold {
+  font-family: 'Pretendard Variable', sans-serif;
   font-weight: 700;
   font-style: normal;
 }
 
-.barlow-extrabold {
-  font-family: "Barlow", sans-serif;
+.pretendard-extrabold {
+  font-family: 'Pretendard Variable', sans-serif;
   font-weight: 800;
   font-style: normal;
 }
 
-.barlow-black {
-  font-family: "Barlow", sans-serif;
+.pretendard-black {
+  font-family: 'Pretendard Variable', sans-serif;
   font-weight: 900;
   font-style: normal;
-}
-
-.barlow-thin-italic {
-  font-family: "Barlow", sans-serif;
-  font-weight: 100;
-  font-style: italic;
-}
-
-.barlow-extralight-italic {
-  font-family: "Barlow", sans-serif;
-  font-weight: 200;
-  font-style: italic;
-}
-
-.barlow-light-italic {
-  font-family: "Barlow", sans-serif;
-  font-weight: 300;
-  font-style: italic;
-}
-
-.barlow-regular-italic {
-  font-family: "Barlow", sans-serif;
-  font-weight: 400;
-  font-style: italic;
-}
-
-.barlow-medium-italic {
-  font-family: "Barlow", sans-serif;
-  font-weight: 500;
-  font-style: italic;
-}
-
-.barlow-semibold-italic {
-  font-family: "Barlow", sans-serif;
-  font-weight: 600;
-  font-style: italic;
-}
-
-.barlow-bold-italic {
-  font-family: "Barlow", sans-serif;
-  font-weight: 700;
-  font-style: italic;
-}
-
-.barlow-extrabold-italic {
-  font-family: "Barlow", sans-serif;
-  font-weight: 800;
-  font-style: italic;
-}
-
-.barlow-black-italic {
-  font-family: "Barlow", sans-serif;
-  font-weight: 900;
-  font-style: italic;
 }

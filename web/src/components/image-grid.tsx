@@ -15,10 +15,10 @@ const ImageGrid: React.FC<ImageGridProps> = ({ selectedIndex, onSelectImage }) =
   const { t } = useTranslation();
   const { photos, removePhoto, focalLength35mmMode } = useStore();
 
-  const handleDownloadImage = (index: number, e: React.MouseEvent) => {
+  const handleDownloadImage = (_index: number, e: React.MouseEvent) => {
     e.stopPropagation();
     // Download single image logic
-    console.log('Download image:', index);
+    // Download image at index
   };
 
   const handleRemoveImage = (index: number, e: React.MouseEvent) => {
@@ -29,10 +29,10 @@ const ImageGrid: React.FC<ImageGridProps> = ({ selectedIndex, onSelectImage }) =
     }
   };
 
-  const handleEditMetadata = (index: number, e: React.MouseEvent) => {
+  const handleEditMetadata = (_index: number, e: React.MouseEvent) => {
     e.stopPropagation();
     // Open metadata editor
-    console.log('Edit metadata:', index);
+    // Edit metadata for image at index
   };
 
   return (

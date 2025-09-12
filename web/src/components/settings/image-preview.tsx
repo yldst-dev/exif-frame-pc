@@ -1,14 +1,12 @@
-import React, { useMemo, useEffect, useState } from 'react';
+import React, { useMemo, useEffect, useState, useCallback } from 'react';
 import { useTranslation } from 'react-i18next';
 import ImageIcon from '../../icons/image.icon';
 import Button from '../ui/button';
 import { useStore } from '../../store';
 import themes, { useThemeStore } from '../../themes';
 import render from '../../core/drawing/render';
-
-interface ImagePreviewProps {
-  selectedPhoto: any | null;
-}
+import { useDebounce } from '../../hooks/useDebounce';
+import { ImagePreviewProps } from '../../types';
 
 const ImagePreview: React.FC<ImagePreviewProps> = ({ selectedPhoto }) => {
   const { t } = useTranslation();
@@ -19,113 +17,142 @@ const ImagePreview: React.FC<ImagePreviewProps> = ({ selectedPhoto }) => {
   const [isGenerating, setIsGenerating] = useState(false);
   const [generationError, setGenerationError] = useState<string | null>(null);
   const [showModal, setShowModal] = useState(false);
+
+  // 디바운스된 테마 옵션 - 300ms 딜레이로 렌더링 최적화
+  const debouncedThemeOptions = useDebounce(themeStore.option, 300);
   
-  // Format file size
-  const formatFileSize = (bytes: number): string => {
+  
+  // Format file size - memoized for performance
+  const formatFileSize = useCallback((bytes: number): string => {
     if (bytes === 0) return '0 Bytes';
     const k = 1024;
     const sizes = ['Bytes', 'KB', 'MB', 'GB'];
     const i = Math.floor(Math.log(bytes) / Math.log(k));
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
-  };
+  }, []);
   
-  // Generate full-resolution themed image for export
-  useEffect(() => {
-    const generateExportPreview = async () => {
-      if (!selectedPhoto || !selectedThemeName) {
-        setThemedPreview(null);
-        setIsGenerating(false);
-        setGenerationError(null);
-        return;
-      }
-
-      setIsGenerating(true);
-      setGenerationError(null);
+  // Generate full-resolution themed image for export - optimized with useCallback
+  const generateExportPreview = useCallback(async () => {
+    if (!selectedPhoto || !selectedThemeName) {
       setThemedPreview(null);
+      setIsGenerating(false);
+      setGenerationError(null);
+      return;
+    }
 
-      try {
-        const selectedTheme = themes.find(theme => theme.name === selectedThemeName);
-        if (!selectedTheme) {
-          throw new Error(`Theme "${selectedThemeName}" not found`);
+    // 초기 로딩이나 사진 변경 시에만 로딩 표시
+    const isInitialLoad = !themedPreview;
+    
+    if (isInitialLoad) {
+      setIsGenerating(true);
+      setThemedPreview(null);
+    }
+    setGenerationError(null);
+
+    try {
+      const selectedTheme = themes.find(theme => theme.name === selectedThemeName);
+      if (!selectedTheme) {
+        console.error('Available themes:', themes.map(t => t.name));
+        console.error('Selected theme name:', selectedThemeName);
+        throw new Error(`Theme "${selectedThemeName}" not found. Available themes: ${themes.map(t => t.name).join(', ')}`);
+      }
+
+      // Create a Map with all required options and their default values
+      const themeOptions = new Map();
+      
+      // First, set all default values from theme options
+      selectedTheme.options.forEach(option => {
+        themeOptions.set(option.id, option.default);
+      });
+      
+      // Then override with user-configured values if they exist
+      debouncedThemeOptions.forEach((value, key) => {
+        if (selectedTheme.options.some(opt => opt.id === key)) {
+          themeOptions.set(key, value);
         }
+      });
 
-        // Wait a bit to ensure the loading state is visible
-        await new Promise(resolve => setTimeout(resolve, 100));
+      // Use requestAnimationFrame for better performance
+      await new Promise(resolve => requestAnimationFrame(resolve));
+      
+      // Generate full-resolution image with theme applied
+      const canvas = await render(selectedTheme.func, selectedPhoto, themeOptions, store);
+      
+      if (!canvas || canvas.width === 0 || canvas.height === 0) {
+        throw new Error('Generated canvas is invalid');
+      }
 
-        // Create a Map with all required options and their default values
-        const themeOptions = new Map();
-        
-        // First, set all default values from theme options
-        selectedTheme.options.forEach(option => {
-          themeOptions.set(option.id, option.default);
-        });
-        
-        // Then override with user-configured values if they exist
-        themeStore.option.forEach((value, key) => {
-          if (selectedTheme.options.some(opt => opt.id === key)) {
-            themeOptions.set(key, value);
-          }
-        });
-
-        console.log('Generating preview with options:', { 
-          selectedThemeName, 
-          themeOptionsSize: themeOptions.size,
-          themeOptions: Array.from(themeOptions.entries())
-        });
-
-        // Generate full-resolution image with theme applied
-        const canvas = await render(selectedTheme.func, selectedPhoto, themeOptions, store);
-        
-        if (!canvas || canvas.width === 0 || canvas.height === 0) {
-          throw new Error('Generated canvas is invalid');
-        }
-
-        // Convert to data URL with high quality for preview and download
-        const dataUrl = canvas.toDataURL('image/jpeg', store.quality || 0.95);
-        setThemedPreview(dataUrl);
-        console.log('Preview generated successfully');
-        
-      } catch (error) {
-        console.error('Failed to generate export preview:', error);
-        setGenerationError(error instanceof Error ? error.message : 'Unknown error occurred');
-        setThemedPreview(null);
-      } finally {
+      // Convert to data URL with high quality for preview and download
+      const dataUrl = canvas.toDataURL('image/jpeg', store.quality || 0.95);
+      
+      setThemedPreview(dataUrl);
+      
+    } catch (error) {
+      console.error('Failed to generate export preview:', error);
+      setGenerationError(error instanceof Error ? error.message : 'Unknown error occurred');
+      setThemedPreview(null);
+    } finally {
+      // 초기 로딩일 때만 로딩 상태 해제
+      if (isInitialLoad) {
         setIsGenerating(false);
       }
-    };
+    }
+  }, [selectedPhoto, selectedThemeName, debouncedThemeOptions, store.rerenderOptions, store.quality, themedPreview]);
 
-    generateExportPreview();
-  }, [selectedPhoto, selectedThemeName, themeStore.option, store.rerenderOptions, store.quality]);
-
-  // Handle ESC key to close modal
   useEffect(() => {
-    const handleEscKey = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
-        setShowModal(false);
-      }
-    };
+    generateExportPreview();
+  }, [generateExportPreview]);
 
+  // Handle image click to open modal
+  const handleImageClick = useCallback(() => {
+    setShowModal(true);
+  }, []);
+
+  // Handle download click
+  const handleDownloadClick = useCallback(() => {
+    if (!themedPreview || !selectedPhoto) return;
+    
+    // Download the full-resolution export image
+    const link = document.createElement('a');
+    link.href = themedPreview;
+    
+    // Generate filename with theme name
+    const fileExtension = selectedPhoto.file.name.split('.').pop();
+    const baseFileName = selectedPhoto.file.name.replace(/\.[^/.]+$/, "");
+    const themeName = selectedThemeName.replace(/\s+/g, '_').toLowerCase();
+    link.download = `${baseFileName}_${themeName}.${store.exportToJpeg ? 'jpg' : fileExtension}`;
+    
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }, [themedPreview, selectedPhoto, selectedThemeName, store.exportToJpeg]);
+
+  // Handle ESC key to close modal - optimized with useCallback
+  const handleEscKey = useCallback((event: KeyboardEvent) => {
+    if (event.key === 'Escape') {
+      setShowModal(false);
+    }
+  }, []);
+
+  useEffect(() => {
     if (showModal) {
       document.addEventListener('keydown', handleEscKey);
       return () => {
         document.removeEventListener('keydown', handleEscKey);
       };
     }
-  }, [showModal]);
+  }, [showModal, handleEscKey]);
 
-  // Calculate dimensions and file size
+  // Calculate dimensions and file size - optimized memoization
   const previewInfo = useMemo(() => {
     if (!selectedPhoto) return null;
-    
-    const img = new Image();
-    img.src = selectedPhoto.thumbnail;
     
     return {
       originalSize: `${selectedPhoto.image.naturalWidth} × ${selectedPhoto.image.naturalHeight}`,
       outputSize: `${selectedPhoto.image.width} × ${selectedPhoto.image.height}`,
       fileSize: formatFileSize(selectedPhoto.file.size),
     };
-  }, [selectedPhoto]);
+  }, [selectedPhoto, formatFileSize]);
 
   if (!selectedPhoto) {
     return (
@@ -153,28 +180,20 @@ const ImagePreview: React.FC<ImagePreviewProps> = ({ selectedPhoto }) => {
       {/* Preview Image - Main content area */}
       <div className="flex-1 flex flex-col p-4 min-h-0">
         <div 
-          className="flex-1 bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden min-h-0 flex items-center justify-center"
+          className="flex-1 bg-gray-100 dark:bg-gray-800 rounded-lg overflow-hidden min-h-0 image-preview-container"
           style={{
             backgroundColor: darkMode ? 'rgba(31, 41, 55, 0.8)' : 'rgba(243, 244, 246, 0.8)'
           }}
         >
           {themedPreview ? (
-            <div className="w-full h-full flex items-center justify-center p-4">
+            <div className="w-full h-full p-4 image-preview-container">
               <img
                 src={themedPreview}
                 alt={`Export preview - ${selectedPhoto.file.name}`}
-                className="max-w-full max-h-full object-contain hover:opacity-90 transition-opacity cursor-pointer"
-                style={{ 
-                  maxWidth: '100%', 
-                  maxHeight: '100%',
-                  width: 'auto',
-                  height: 'auto'
-                }}
-                onClick={() => {
-                  if (themedPreview) {
-                    setShowModal(true);
-                  }
-                }}
+                className="max-w-full max-h-full object-contain hover:opacity-90 cursor-pointer"
+                onClick={handleImageClick}
+                loading="lazy"
+                decoding="async"
               />
             </div>
           ) : generationError ? (
@@ -197,7 +216,7 @@ const ImagePreview: React.FC<ImagePreviewProps> = ({ selectedPhoto }) => {
                   onClick={(e) => {
                     e.stopPropagation();
                     setGenerationError(null);
-                    useStore.getState().setRerenderOptions();
+                    store.setRerenderOptions();
                   }}
                   className="text-xs px-3 py-1 bg-red-100 dark:bg-red-900/20 text-red-700 dark:text-red-300 rounded-md hover:bg-red-200 dark:hover:bg-red-900/40 transition-colors"
                 >
@@ -207,11 +226,18 @@ const ImagePreview: React.FC<ImagePreviewProps> = ({ selectedPhoto }) => {
             </div>
           ) : isGenerating ? (
             <div className="flex items-center justify-center h-full">
-              <div className="text-center space-y-2">
-                <div className="w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto"></div>
-                <p className="text-sm text-gray-500 dark:text-gray-400">
-                  {t('preview.generating', 'Generating export preview...')}
-                </p>
+              <div className="text-center space-y-3">
+                <div className="w-10 h-10 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto"></div>
+                <div>
+                  <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                    {t('preview.generating', '미리보기 생성 중...')}
+                  </p>
+                  {selectedThemeName && (
+                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                      {selectedThemeName}
+                    </p>
+                  )}
+                </div>
               </div>
             </div>
           ) : (
@@ -257,30 +283,14 @@ const ImagePreview: React.FC<ImagePreviewProps> = ({ selectedPhoto }) => {
           )}
         </div>
 
-        {/* Download Button */}
+        {/* Download Button - optimized with useCallback */}
         <Button 
           variant="primary" 
           className="w-full"
           disabled={!themedPreview}
-          onClick={() => {
-            if (!themedPreview) return;
-            
-            // Download the full-resolution export image
-            const link = document.createElement('a');
-            link.href = themedPreview;
-            
-            // Generate filename with theme name
-            const fileExtension = selectedPhoto.file.name.split('.').pop();
-            const baseFileName = selectedPhoto.file.name.replace(/\.[^/.]+$/, "");
-            const themeName = selectedThemeName.replace(/\s+/g, '_').toLowerCase();
-            link.download = `${baseFileName}_${themeName}.${store.exportToJpeg ? 'jpg' : fileExtension}`;
-            
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-          }}
+          onClick={handleDownloadClick}
         >
-          {themedPreview 
+          {themedPreview
             ? t('preview.download-single', '이 사진 다운로드') 
             : t('preview.generating', '생성 중...')
           }
@@ -313,8 +323,8 @@ const ImagePreview: React.FC<ImagePreviewProps> = ({ selectedPhoto }) => {
               alt={`Full preview - ${selectedPhoto.file.name}`}
               className="object-contain shadow-2xl"
               style={{
-                maxWidth: '85vw',
-                maxHeight: '80vh',
+                maxWidth: '90vw',
+                maxHeight: '85vh',
                 width: 'auto',
                 height: 'auto'
               }}
