@@ -1,4 +1,5 @@
 enum Font {
+  // Barlow는 index.html에서 로드합니다.
   Digital7 = 'digital-7',
   Poxel = 'poxel',
   DINAlternateBold = 'din-alternate-bold',
